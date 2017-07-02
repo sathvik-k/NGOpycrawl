@@ -28,14 +28,19 @@ class NGOSpider(scrapy.Spider):
         contact = response.css("div.contact")
         print contact
 
-        parsedHTML = ['']
+        parsedHTML = []
         i = 0
         for x in NGOSpider.start_urls:
-            parsedHTML[i].append(self.getHTMLtext(x))
+            parsedHTML.append(self.getHTMLtext(x))
             i += 1
 
-        phoneNumber = self.getPhoneNumber(parsedHTML[0])
-        email =
+        phoneNumber = []
+        email =[]
+        streetAddress = []
+
+        for x in parsedHTML:
+            phoneNumber.append(self.getPhoneNumber(x))
+            email.append(self.getEmail(x))
 
     #getting all text on a page
     def getHTMLtext (self, url):
