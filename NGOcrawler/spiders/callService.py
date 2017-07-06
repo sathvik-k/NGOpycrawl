@@ -38,8 +38,8 @@ class LinkSpider(CrawlSpider):
 
     name = 'NGO'
 
-    allowed_domains = ['afcfoundation.org']
-    start_urls = ['']
+    #allowed_domains = ['afcfoundation.org']
+    #start_urls = ['']
 
     rules = (Rule(LinkExtractor(), callback='parse_url'), )
 
@@ -230,7 +230,7 @@ reactor.run() # the script will block here until all crawling jobs are finished
 """
 
 configure_logging()
-runner = CrawlerRunner()
+
 LinkSpider.start_urls = [sys.argv[1]]
 
 siteEntered = up.urlparse(sys.argv[1]).hostname
@@ -238,7 +238,8 @@ splitEntries = siteEntered.split(".")
 splitEntriesArr = splitEntries[len(splitEntries)-2:]
 domain = '.'.join(splitEntriesArr)
 print domain
-#LinkSpider.allowed_domains = domain
+LinkSpider.allowed_domains = [domain]
+runner = CrawlerRunner()
 
 
 @defer.inlineCallbacks
