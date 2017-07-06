@@ -1,9 +1,8 @@
 import os
 import sys
-import feedparser
-from bs4 import BeautifulStoneSoup
+#import feedparser
 from bs4 import BeautifulSoup
-from nltk import clean_html
+#from nltk import clean_html
 import urllib
 import re
 import json
@@ -58,15 +57,16 @@ class NGOSpider(scrapy.Spider):
     start_urls = NGOGlobalItems
 
     def parse(self, response):
+        """
         page = response.url.split("/")[-2]
         filename = 'ngo-%s.html' % page
         with open(filename, 'wb') as f:
             f.write(response.body)
         self.log('Saved file %s' % filename)
+        """
 
         print('_______________________________________________________________')
         print('SCRAPED DATA:')
-        print('_______________________________________________________________')
         print('_______________________________________________________________')
 
 
@@ -252,21 +252,9 @@ crawl()
 reactor.run() # the script will block here until the last crawl call is finished
 
 
-print('_______________________________________________________________')
-print('_______________________________________________________________')
-print 'NGOGlobalItems: {} '.format(NGOGlobalItems)
-print('_______________________________________________________________')
-print('_______________________________________________________________')
-print('_______________________________________________________________')
-print 'DATA: {} '.format(data)
-print('_______________________________________________________________')
-print('')
-print('_______________________________________________________________')
-print('_______________________________________________________________')
+#print 'DATA: {} '.format(data)
 JSON_data = json.dumps(data)
 print 'JSON DATA: {} '.format(JSON_data)
-print('_______________________________________________________________')
-print('_______________________________________________________________')
 
 """
 process2 = CrawlerProcess()
