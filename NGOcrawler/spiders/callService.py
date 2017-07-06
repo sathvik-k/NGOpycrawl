@@ -65,17 +65,17 @@ class NGOSpider(scrapy.Spider):
         self.log('Saved file %s' % filename)
         """
 
-        print('_______________________________________________________________')
-        print('SCRAPED DATA:')
-        print('_______________________________________________________________')
+        self.log('_______________________________________________________________')
+        self.log('SCRAPED DATA:')
+        self.log('_______________________________________________________________')
 
 
         title = response.xpath('//title/text()').extract_first()
-        print title
+        #print title
         orgTitle.append(title)
 
         contact = response.css("div.contact")
-        print contact
+        #print contact
 
         parsedHTML = []
         i = 0
@@ -99,8 +99,6 @@ class NGOSpider(scrapy.Spider):
         #insert data into JSON
         JSON_data = self.formatJSON(orgTitle,phoneNumber,email,streetAddress)
 
-        print('_______________________________________________________________')
-        print('_______________________________________________________________')
 
 
 
@@ -128,7 +126,7 @@ class NGOSpider(scrapy.Spider):
             phoneNumber = re.findall(numbers, webText)
             print(phoneNumber)
         """
-        print(phoneNumber)
+        #print(phoneNumber)
         return phoneNumber
 
 
@@ -140,7 +138,7 @@ class NGOSpider(scrapy.Spider):
 
         #catch index out of range error
         email = re.findall(emailCombinations, webText)
-        print(email)
+        #print(email)
         return email
 
 
@@ -198,7 +196,7 @@ class NGOSpider(scrapy.Spider):
 
             addressFinal.append(neededText[addressStart:])
 
-        print addressFinal
+        #print addressFinal
         return addressFinal
 
 
@@ -237,7 +235,7 @@ siteEntered = up.urlparse(sys.argv[1]).hostname
 splitEntries = siteEntered.split(".")
 splitEntriesArr = splitEntries[len(splitEntries)-2:]
 domain = '.'.join(splitEntriesArr)
-print domain
+self.log(domain)
 LinkSpider.allowed_domains = [domain]
 runner = CrawlerRunner()
 
