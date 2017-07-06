@@ -13,25 +13,41 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.item import Item, Field
 
-from scrapy.crawler import CrawlerProcess
+from twisted.internet import reactor, defer
+from scrapy.crawler import CrawlerRunner
+from scrapy.utils.log import configure_logging
+
+import urlparse as up
 
 NGOGlobalItems = []
+data = {
+    'Organization Title' : [],
+    'Phone Number' : [],
+    'Email' : [],
+    'Street Address' : [],
+    }
+JSON_data = {}
+orgTitle = []
+
 
 class MyItem(Item):
     url= Field()
 
 
 class LinkSpider(CrawlSpider):
-    name = 'ngoLink'
+
+    name = 'NGO'
+
     allowed_domains = ['afcfoundation.org']
-    start_urls = ['http://www.afcfoundation.org']
+    start_urls = ['']
 
     rules = (Rule(LinkExtractor(), callback='parse_url'), )
 
     def parse_url(self, response):
-
+        print 'URL = {}'.format(response.url)
         NGOGlobalItems.append(response.url)
-        # invoke your parsing code on response
+        # invoke parsing code on response
+
 
 class NGOSpider(scrapy.Spider):
     name = "ngo"
@@ -40,7 +56,6 @@ class NGOSpider(scrapy.Spider):
 
     #allowed_domains = ['afcfoundation.org']
     start_urls = NGOGlobalItems
-
 
     def parse(self, response):
         page = response.url.split("/")[-2]
@@ -54,8 +69,10 @@ class NGOSpider(scrapy.Spider):
         print('_______________________________________________________________')
         print('_______________________________________________________________')
 
+
         title = response.xpath('//title/text()').extract_first()
         print title
+        orgTitle.append(title)
 
         contact = response.css("div.contact")
         print contact
@@ -66,18 +83,21 @@ class NGOSpider(scrapy.Spider):
             parsedHTML.append(self.getHTMLtext(x))
             i += 1
 
+
         phoneNumber = []
         email =[]
         streetAddress = []
 
         for x in parsedHTML:
-            phoneNumber.append(self.getPhoneNumber(x))
-            email.append(self.getEmail(x))
-            streetAddress.append(self.getAddress(x))
+            if self.getPhoneNumber(x):
+                phoneNumber.append(self.getPhoneNumber(x))
+            if self.getEmail(x):
+                email.append(self.getEmail(x))
+            if self.getAddress(x):
+                streetAddress.append(self.getAddress(x))
 
-        projectProp = 'PROJECTPROPOSAL'
-        print(self.formatJSON(title,phoneNumber,email,streetAddress,projectProp))
-
+        #insert data into JSON
+        JSON_data = self.formatJSON(orgTitle,phoneNumber,email,streetAddress)
 
         print('_______________________________________________________________')
         print('_______________________________________________________________')
@@ -183,33 +203,75 @@ class NGOSpider(scrapy.Spider):
 
 
 
-    def formatJSON (self,title,phoneNumber,emailAddress,streetAddress,projectProposal):
-
-        data = {
-            'Organization Title' : '',
-            'Phone Number' : '',
-            'Email' : '',
-            'Street Address' : [],
-            'Project Proposal': ''
-        }
-
+    def formatJSON (self,title,phoneNumber,emailAddress,streetAddress):
         data['Organization Title'] = title
         data['Phone Number'] = phoneNumber
         data['Email'] = emailAddress
         data['Street Address'] = streetAddress
-        data['Project Proposal'] = projectProposal
 
         json_data = json.dumps(data)
         return json_data
-        print json_data
+
+"""
+
+configure_logging()
+runner = CrawlerRunner()
+runner.crawl(LinkSpider)
+
+print 'NGOGlobalItems: {} '.format(NGOGlobalItems)
+
+runner = CrawlerRunner()
+runner.crawl(NGOSpider)
+
+d = runner.join()
+d.addBoth(lambda _: reactor.stop())
+
+reactor.run() # the script will block here until all crawling jobs are finished
+"""
+
+configure_logging()
+runner = CrawlerRunner()
+LinkSpider.start_urls = [sys.argv[1]]
+
+siteEntered = up.urlparse(sys.argv[1]).hostname
+splitEntries = siteEntered.split(".")
+splitEntriesArr = splitEntries[len(splitEntries)-2:]
+domain = '.'.join(splitEntriesArr)
+print domain
+#LinkSpider.allowed_domains = domain
 
 
+@defer.inlineCallbacks
+def crawl():
+    yield runner.crawl(LinkSpider)
+    yield runner.crawl(NGOSpider)
+    reactor.stop()
 
-process = CrawlerProcess()
+crawl()
+reactor.run() # the script will block here until the last crawl call is finished
 
-process.crawl(LinkSpider)
-process.crawl(NGOSpider)
-process.start() # the script will block here until the crawling is finished
+
+print('_______________________________________________________________')
+print('_______________________________________________________________')
+print 'NGOGlobalItems: {} '.format(NGOGlobalItems)
+print('_______________________________________________________________')
+print('_______________________________________________________________')
+print('_______________________________________________________________')
+print 'DATA: {} '.format(data)
+print('_______________________________________________________________')
+print('')
+print('_______________________________________________________________')
+print('_______________________________________________________________')
+JSON_data = json.dumps(data)
+print 'JSON DATA: {} '.format(JSON_data)
+print('_______________________________________________________________')
+print('_______________________________________________________________')
+
+"""
+process2 = CrawlerProcess()
+process2.crawl(NGOSpider)
+process2.start() # the script will block here until all crawling jobs are finished
+"""
 
 """
    myspider = MySpider()
