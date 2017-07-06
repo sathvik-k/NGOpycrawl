@@ -1,21 +1,24 @@
 # NGOpycrawl
 
-Get source code at:
+## Get source code at:
+
 `git clone https://github.com/koneman/NGOpycrawl.git`
 
 
-Package dependencies:
-Scrapy - read documentation at (https://docs.scrapy.org/en/latest/)
+## Package dependencies:
+
+### Scrapy - read documentation at (https://docs.scrapy.org/en/latest/)
 
 `pip install scrapy`
 
-Beatiful Soup - read documentation at (https://docs.scrapy.org/en/latest/)
+### Beatiful Soup - read documentation at (https://docs.scrapy.org/en/latest/)
 
 `pip install bs4`
 
-cd NGOpycrawl/NGOcrawler/spiders
-
-then run:
+### Running the code:
+Go to:
+`cd NGOpycrawl/NGOcrawler/spiders`
+Then run:
 `python callService.py *<NGO url>*`
 
 This will return relevant JSON data. For example:
